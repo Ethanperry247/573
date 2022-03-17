@@ -1,0 +1,8 @@
+prefix=/home/ubuntu/project2/devel
+
+Name: reinforcement
+Description: Description of reinforcement
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
