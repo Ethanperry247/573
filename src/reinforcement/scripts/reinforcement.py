@@ -25,11 +25,15 @@ class Action(Enum):
     MOVE_FORWARD = 0
     TURN_RIGHT = 0
 
-
 # Globals and callback are used for scanning system
 front = Distance.MEDIUM
 left = Distance.MEDIUM
 right = Distance.MEDIUM
+
+# These three arrays specify the sensor measurement angles on the lidar
+FRONT_SCAN_INDICES = [356, 357, 358, 359, 0, 1, 2, 3]
+RIGHT_SCAN_INDICES = [86, 87, 88, 89, 90, 91, 92, 93]
+LEFT_SCAN_INDICES = [266, 267, 268, 269, 270, 271, 272, 273]
 
 # 27 states for the 3 distances ** 3 regions of view
 # This Q-table describes which actions should be taken at each state to move along a wall
@@ -92,12 +96,12 @@ Qtable = [
 
 # Move publishes a linear and angular direction to the robot
 # Only the X is currently used to navigate the robot
-def move(angle, linear):
+def move(angle, x, y):
     pub = rospy.Publisher("/triton_lidar/vel_cmd", Pose2D, queue_size=2)
 
     pose = Pose2D()
-    pose.x = linear
-    pose.y = 0
+    pose.x = x
+    pose.y = y
     pose.theta = angle
 
     pub.publish(pose)
@@ -105,34 +109,27 @@ def move(angle, linear):
 
 # Moving forward, to the left, and to the right as according to the project slides
 def move_forward():
-    move(0, 0.3)
+    move(0, 0.3, 0)
 
 def turn_left():
-    move(math.pi / 4, 0.3)
+    move(math.pi / 8, 0.3, 0)
 
 def turn_right():
-    move(-math.pi / 4, 0.3)
+    move(-math.pi / 8, 0.3, 0)
+
+def create_average_measurement(scan, arr):
+    avg = 0
+    for index in arr:
+        avg += scan.ranges[index]
+
+    return (avg / len(arr))
 
 def callback(scan):
 
-    # 0 is directly in front of the robot, 360 view
-    length = len(scan.ranges) - 1
-
-    # Take three measurements from each side to get the average distance from the front, left, and right of the robot
-    avg_left = (scan.ranges[0] + scan.ranges[1] + scan.ranges[2]) / 3
-    avg_right = (scan.ranges[length - 1] + scan.ranges[length - 2] + scan.ranges[length - 3]) / 3
-    avg_front = (scan.ranges[length // 2] + scan.ranges[(length // 2) - 1] + scan.ranges[(length // 2) + 1]) / 3
-
     # Determine the state of each of these sides based on a threshold
-    determine_state(avg_left, Region.LEFT, 0.75, 2)
-    determine_state(avg_right, Region.RIGHT, 0.75, 2)
-    determine_state(avg_front, Region.FRONT, 0.75, 2)
-
-    global left, front, right
-
-    rospy.loginfo(left)
-    rospy.loginfo(front)
-    rospy.loginfo(right)
+    determine_state(create_average_measurement(scan, LEFT_SCAN_INDICES), Region.LEFT, 0.75, 2)
+    determine_state(create_average_measurement(scan, RIGHT_SCAN_INDICES), Region.RIGHT, 0.75, 2)
+    determine_state(create_average_measurement(scan, FRONT_SCAN_INDICES), Region.FRONT, 0.75, 2)
 
 # Uses thresholds to determine whether the robot is near or far from any given wall
 # The close and far boundaries can be passed as params
@@ -163,7 +160,20 @@ def reinforcement():
 
     while not rospy.is_shutdown():
 
-        next_state = Qtable[left][front][right]
+        global left, front, right
+        
+        rospy.loginfo("Left:")
+        rospy.loginfo(left)
+        rospy.loginfo("Front:")
+        rospy.loginfo(front)
+        rospy.loginfo("Right:")
+        rospy.loginfo(right)
+
+        
+        next_state = Qtable[left.value][front.value][right.value]
+
+        rospy.loginfo("Next State:")
+        rospy.loginfo(next_state)
 
         if (next_state == Action.MOVE_FORWARD):
             move_forward()
