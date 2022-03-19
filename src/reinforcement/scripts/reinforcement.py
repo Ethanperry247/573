@@ -37,10 +37,10 @@ LEFT_SCAN_INDICES = [266, 267, 268, 269, 270, 271, 272, 273]
 
 # 27 states for the 3 distances ** 3 regions of view
 # This Q-table describes which actions should be taken at each state to move along a wall
-# The states dictate that a robot should try to stay medium distance from its right wall
 # These states can be customized to perform different behaviors as well
+# 0 Denots a left move, 1 denotes a forward move, and 2 denotes a right move
 Qt1 = [
-            1,
+            1, 
             1,
             2,
             1,
@@ -82,7 +82,7 @@ def move(angle, x, y):
     pub.publish(pose)
 
 
-# Moving forward, to the left, and to the right as according to the project slides
+# Moving forward, to the left, and to the right
 def move_forward():
     move(0, -0.3, 0)
 
@@ -133,14 +133,15 @@ def reinforcement():
     sub = rospy.Subscriber('/scan', LaserScan, callback)
     rate = rospy.Rate(10) # 10hz
 
+    # Determine the next state and execute the appropriate action to get to that state. 
     while not rospy.is_shutdown():
 
         global left, front, right
 
         global Qt1
 
+        # Used to get the correct state.
         next_state = Qt1[int(left.value * 9 + front.value * 3 + right.value)]
-
 
         if (next_state == 0):
             turn_left()
@@ -149,7 +150,7 @@ def reinforcement():
             move_forward()
 
         if (next_state == 2):
-                turn_right()
+            turn_right()
         
         rate.sleep()
 
