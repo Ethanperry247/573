@@ -39,59 +39,34 @@ LEFT_SCAN_INDICES = [266, 267, 268, 269, 270, 271, 272, 273]
 # This Q-table describes which actions should be taken at each state to move along a wall
 # The states dictate that a robot should try to stay medium distance from its right wall
 # These states can be customized to perform different behaviors as well
-Qtable = [
-                                        # Region - Distance Pairs
-    [
-        [
-            Action.MOVE_FORWARD,        # LC FC RC
-            Action.MOVE_FORWARD,        # LC FC RM
-            Action.TURN_RIGHT,          # LC FC RF
-        ],
-        [
-            Action.MOVE_FORWARD,        # LC FM RC -- Stay between walls in this instance
-            Action.MOVE_FORWARD,        # LC FM RM
-            Action.TURN_RIGHT,          # LC FM RF
-        ],
-        [
-            Action.MOVE_FORWARD,        # LC FF RC -- Stay between walls in this instance
-            Action.MOVE_FORWARD,        # LC FF RM
-            Action.TURN_RIGHT,          # LC FF RF
-        ]
-    ],
-    [
-        [
-            Action.TURN_LEFT,           # LM FC RC
-            Action.MOVE_FORWARD,        # LM FC RM
-            Action.TURN_RIGHT,          # LM FC RF
-        ],
-        [
-            Action.TURN_LEFT,           # LM FM RC
-            Action.MOVE_FORWARD,        # LM FM RM
-            Action.TURN_RIGHT,          # LM FM RF
-        ],
-        [
-            Action.TURN_LEFT,           # LM FF RC
-            Action.MOVE_FORWARD,        # LM FF RM
-            Action.TURN_RIGHT,          # LM FF RF
-        ]
-    ],
-    [    
-        [
-            Action.TURN_LEFT,           # LF FC RC
-            Action.MOVE_FORWARD,        # LF FC RM
-            Action.TURN_RIGHT,          # LF FC RF
-        ],
-        [
-            Action.TURN_LEFT,           # LF FM RC
-            Action.MOVE_FORWARD,        # LF FM RM
-            Action.TURN_RIGHT,          # LF FM RF
-        ],
-        [
-            Action.TURN_LEFT,           # LF FF RC
-            Action.MOVE_FORWARD,        # LF FF RM
-            Action.TURN_RIGHT           # LF FF RF
-        ] 
-    ]
+Qt1 = [
+            1,
+            1,
+            2,
+            1,
+            1,
+            2,
+            1,
+            1,
+            2,
+            0,
+            1,
+            2,
+            0,
+            1,
+            2,
+            0,
+            1,
+            2,
+            0,
+            1,
+            2,
+            0,
+            1,
+            2,
+            0,
+            1,
+            2
 ]
 
 # Move publishes a linear and angular direction to the robot
@@ -109,13 +84,13 @@ def move(angle, x, y):
 
 # Moving forward, to the left, and to the right as according to the project slides
 def move_forward():
-    move(0, 0.3, 0)
+    move(0, -0.3, 0)
 
 def turn_left():
-    move(math.pi / 8, 0.3, 0)
+    move(0, 0, -0.3)
 
 def turn_right():
-    move(-math.pi / 8, 0.3, 0)
+    move(0, 0, 0.3)
 
 def create_average_measurement(scan, arr):
     avg = 0
@@ -127,9 +102,9 @@ def create_average_measurement(scan, arr):
 def callback(scan):
 
     # Determine the state of each of these sides based on a threshold
-    determine_state(create_average_measurement(scan, LEFT_SCAN_INDICES), Region.LEFT, 0.75, 2)
-    determine_state(create_average_measurement(scan, RIGHT_SCAN_INDICES), Region.RIGHT, 0.75, 2)
-    determine_state(create_average_measurement(scan, FRONT_SCAN_INDICES), Region.FRONT, 0.75, 2)
+    determine_state(create_average_measurement(scan, LEFT_SCAN_INDICES), 0, 0.25, 1.5)
+    determine_state(create_average_measurement(scan, RIGHT_SCAN_INDICES), 2, 0.25, 1.5)
+    determine_state(create_average_measurement(scan, FRONT_SCAN_INDICES), 1, 0.25, 1.5)
 
 # Uses thresholds to determine whether the robot is near or far from any given wall
 # The close and far boundaries can be passed as params
@@ -142,9 +117,9 @@ def determine_state(distance, region, close_boundary, far_boundary):
     elif (distance > far_boundary):
         determination = Distance.FAR
 
-    if (region == Region.LEFT):
+    if (region == 0):
         left = determination
-    elif (region == region.FRONT):
+    elif (region == 1):
         front = determination
     else:
         right = determination
@@ -161,27 +136,21 @@ def reinforcement():
     while not rospy.is_shutdown():
 
         global left, front, right
-        
-        rospy.loginfo("Left:")
-        rospy.loginfo(left)
-        rospy.loginfo("Front:")
-        rospy.loginfo(front)
-        rospy.loginfo("Right:")
-        rospy.loginfo(right)
 
-        
-        next_state = Qtable[left.value][front.value][right.value]
+        global Qt1
 
-        rospy.loginfo("Next State:")
-        rospy.loginfo(next_state)
+        next_state = Qt1[int(left.value * 9 + front.value * 3 + right.value)]
 
-        if (next_state == Action.MOVE_FORWARD):
-            move_forward()
-        elif (next_state == Action.TURN_LEFT):
+
+        if (next_state == 0):
             turn_left()
-        else:
-            turn_right()
-    
+
+        if (next_state == 1):
+            move_forward()
+
+        if (next_state == 2):
+                turn_right()
+        
         rate.sleep()
 
 if __name__ == '__main__':
