@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 
 import rospy
+from std_srvs.srv import Empty
 from std_msgs.msg import String
 from geometry_msgs.msg import Pose2D
 from sensor_msgs.msg import LaserScan
+from gazebo_msgs.msg import GetModelState
 import math
 from enum import Enum
+import random
 
 # Distance enum for the three kinds of distance measurements which can be taken
 class Distance(Enum):
@@ -34,6 +37,16 @@ right = Distance.MEDIUM
 FRONT_SCAN_INDICES = [356, 357, 358, 359, 0, 1, 2, 3]
 RIGHT_SCAN_INDICES = [86, 87, 88, 89, 90, 91, 92, 93]
 LEFT_SCAN_INDICES = [266, 267, 268, 269, 270, 271, 272, 273]
+
+TOTAL_STATES = 27
+TOTAL_ACTIONS = 3
+STATE_DIMENSIONS = [3, 3, 3]
+
+# Equation constants recommended in lecture
+EPSILON_0 = 0.9
+D = 0.985
+ALPHA = 0.2
+GAMMA = 0.8
 
 # 27 states for the 3 distances ** 3 regions of view
 # This Q-table describes which actions should be taken at each state to move along a wall
@@ -124,7 +137,115 @@ def determine_state(distance, region, close_boundary, far_boundary):
     else:
         right = determination
 
+def greedy_epsilon():
+    pass
 
+# Initialize Q table according to a given number of states and actions at each one of those states. 
+def initialize_table(states, actions):
+    Qt = []
+    for i in range(states):
+        act = []
+        # Fill with random numbers
+        for j in range(actions):
+            act.append(random.random())
+        Qt.append(act)
+    return Qt
+
+# Will choose an action based on a distribution of values.
+def choose_action(dist):
+    total = 0
+    for num in dist:
+        total = total + num
+    uni = random.uniform(0, total)
+    inc = 0
+    for it, num in enumerate(dist):
+        if uni < inc:
+            return it
+        inc += num
+    
+
+def identify_reward():
+    global left, front, right
+    if (left != 1 or front != 1 or right != 1):
+        return -1
+    else:
+        return 0
+
+def provide_reset_simulation():
+    rospy.wait_for_service('/gazebo/reset_world')
+    return rospy.ServiceProxy('/gazebo/reset_world', Empty)
+
+def provide_get_robot_state():
+    rospy.wait_for_service('/gazebo/reset_world')
+    return rospy.ServiceProxy('/gazebo/reset_world', Empty)
+
+def initial_state(table):
+    reset = provide_reset_simulation()
+    reset()
+
+    return table[int(left.value * STATE_DIMENSIONS[0] * STATE_DIMENSIONS[1] + front.value * STATE_DIMENSIONS[2] + right.value)]
+
+
+
+def take_action(action):
+    if (action == 0):
+        turn_left()
+
+    if (action == 1):
+        move_forward()
+
+    if (action == 2):
+        turn_right()
+
+
+def q_learning(episodes):
+    global left, front, right
+    Qt2 = initialize_table(TOTAL_STATES, TOTAL_ACTIONS)
+
+    for num, episode in enumerate(episodes):
+        terminal_condition = False
+        iteration = 0
+
+        state = initial_state(Qt2)
+
+        while not terminal_condition:
+
+            # Use greedy epsilon to determine the distribution of probabilities.
+            action_distribution = greedy_epsilon(state)
+
+            # Choose an action at the current state based on the action distribution.
+            chosen_action = choose_action_index(action_distribution)
+
+            # Make the robot take an action based on the random choice.
+            take_action(chosen_action)
+
+            # Use custom reward function to determine the reward for the action.
+            reward = identify_reward()
+
+            # Since state will be updated in globals by the subscriber callback, access the next state in the table.
+            next_state = Qt2[int(left.value * STATE_DIMENSIONS[0] * STATE_DIMENSIONS[1] + front.value * STATE_DIMENSIONS[2] + right.value)]
+
+            # Update Q table as according to lecture.
+            Qt2[state][chosen_action] = Qt2[state][chosen_action] + ALPHA * (reward + GAMMA * max(next_state) - Qt2[state][chosen_action])
+
+            # If the probability dips beneath 0, then set to 0.
+            if (Qt2[state][chosen_action] < 0):
+                Qt2[state][chosen_action] = 0
+
+            # Update state.
+            state = next_state
+
+            iteration += 1
+
+            if (iteration > 1000):
+                terminal_condition = True
+
+    return Qt2
+
+
+
+def sarsa():
+    pass
     
 
 def reinforcement():
