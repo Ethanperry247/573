@@ -1,0 +1,2 @@
+reinforcement
+-DCATKIN_DEVEL_PREFIX=/home/ethan/573/devel -DCMAKE_INSTALL_PREFIX=/home/ethan/573/install -G Unix Makefiles

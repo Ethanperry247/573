@@ -1,4 +1,4 @@
-prefix=/home/ubuntu/project2/devel
+prefix=/home/ethan/573/devel
 
 Name: reinforcement
 Description: Description of reinforcement

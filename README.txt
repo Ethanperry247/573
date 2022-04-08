@@ -10,6 +10,7 @@ source /opt/ros/melodic/setup.bash
 source ~/Stingray-Simulation/catkin_ws/devel/setup.bash
 source ~/Stingray-Simulation/stingray_setup.bash
 sudo chmod -R -f 777 ./src/reinforcement/scripts/reinforcement.py
+source ./devel/setup.sh
 roslaunch reinforcement reinforcement.launch
 
 This is assuming that the Stingray simulation is ready and set up on the system in the home directory. If this is not the correct assumption, please let me know at eperry1@mines.edu, and I will be able to make the correction for you. 
