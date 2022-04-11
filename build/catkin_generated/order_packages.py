@@ -2,4 +2,4 @@
 source_root_dir = '/home/ethan/573/src'
 whitelisted_packages = ''.split(';') if '' != '' else []
 blacklisted_packages = ''.split(';') if '' != '' else []
-underlay_workspaces = '/opt/ros/melodic'.split(';') if '/opt/ros/melodic' != '' else []
+underlay_workspaces = '/home/ethan/573/devel;/opt/ros/melodic'.split(';') if '/home/ethan/573/devel;/opt/ros/melodic' != '' else []

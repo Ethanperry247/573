@@ -1,0 +1,8 @@
+prefix=/home/ethan/573/install
+
+Name: sarsa
+Description: Description of sarsa
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

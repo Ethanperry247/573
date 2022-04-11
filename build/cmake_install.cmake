@@ -132,6 +132,7 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/ethan/573/build/gtest/cmake_install.cmake")
   include("/home/ethan/573/build/reinforcement/cmake_install.cmake")
+  include("/home/ethan/573/build/sarsa/cmake_install.cmake")
 
 endif()
 

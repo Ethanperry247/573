@@ -1,0 +1,138 @@
+[
+    // LEFT CLOSE
+    // FRONT CLOSE
+    // RIGHT CLOSE
+    // BACK CLOSE
+    [
+        0,
+        0,
+        0,
+        0
+    ],
+    // BACK FAR
+    [
+        0,
+        0,
+        0,
+        1
+    ],
+
+    // RIGHT FAR
+    // BACK CLOSE
+    [
+        0,
+        0,
+        1,
+        0
+    ],
+    // BACK FAR
+    [
+        0,
+        0,
+        0,
+        1
+    ],
+
+    // FRONT FAR
+    // RIGHT CLOSE
+    // BACK CLOSE
+    [
+        0,
+        1,
+        0,
+        0
+    ],
+    // BACK FAR
+    [
+        0,
+        1,
+        0,
+        0
+    ],
+
+    // RIGHT FAR
+    // BACK CLOSE
+    [
+        0,
+        0,
+        1,
+        0
+    ],
+
+    // BACK FAR
+    [
+        0,
+        0,
+        0,
+        1
+    ],
+
+
+    // LEFT FAR
+    // FRONT CLOSE
+    // RIGHT CLOSE
+    // BACK CLOSE
+    [
+        0,
+        1,
+        0,
+        0
+    ],
+    // BACK FAR
+    [
+        1,
+        0,
+        0,
+        0
+    ],
+
+    // RIGHT FAR
+    // BACK CLOSE
+    [
+        1,
+        0,
+        0,
+        0
+    ],
+    // BACK FAR
+    [
+        0,
+        0,
+        0,
+        1
+    ],
+
+    // FRONT FAR
+    // RIGHT CLOSE
+    // BACK CLOSE
+    [
+        0,
+        1,
+        0,
+        0
+    ],
+    // BACK FAR
+    [
+        0,
+        1,
+        0,
+        0
+    ],
+
+    // RIGHT FAR
+    // BACK CLOSE
+    [
+        0,
+        0,
+        1,
+        0
+    ],
+
+    // BACK FAR
+    [
+        0,
+        0,
+        1,
+        0
+    ]
+]

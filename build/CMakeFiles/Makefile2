@@ -1082,6 +1082,24 @@ clean: reinforcement/CMakeFiles/roscpp_generate_messages_py.dir/clean
 .PHONY : clean
 
 #=============================================================================
+# Directory level rules for directory sarsa
+
+# Convenience name for "all" pass in the directory.
+sarsa/all:
+
+.PHONY : sarsa/all
+
+# Convenience name for "clean" pass in the directory.
+sarsa/clean:
+
+.PHONY : sarsa/clean
+
+# Convenience name for "preinstall" pass in the directory.
+sarsa/preinstall:
+
+.PHONY : sarsa/preinstall
+
+#=============================================================================
 # Special targets to cleanup operation of make.
 
 # Special rule to run CMake to check the build system integrity.
